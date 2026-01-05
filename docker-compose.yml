@@ -31,7 +31,7 @@ services:
     image: postgres:15
     container_name: tp-postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: dataeng
       POSTGRES_PASSWORD: dataeng123

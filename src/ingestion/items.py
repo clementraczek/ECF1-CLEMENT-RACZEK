@@ -33,7 +33,9 @@ class BookItem(scrapy.Item):
 # 2. QuoteItem
 # ==========================
 # Pour quotes.toscrape.com
+
 class QuoteItem(scrapy.Item):
+    id = scrapy.Field()
     text = scrapy.Field()
     author = scrapy.Field()
     tags = scrapy.Field()
