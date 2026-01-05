@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  # =========================
+  # Stockage objet S3-compatible
+  # =========================
+  minio:
+    image: minio/minio:latest
+    container_name: tp-minio
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - tp-network
+
+  # =========================
+  # Base de données SQL
+  # =========================
+  postgres:
+    image: postgres:15
+    container_name: tp-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dataeng
+      POSTGRES_PASSWORD: dataeng123
+      POSTGRES_DB: analytics
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dataeng -d analytics"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - tp-network
+
+  # =========================
+  # Service ETL / Scrapers
+  # =========================
+  etl:
+    build: .
+    container_name: tp-etl
+    command: tail -f /dev/null  # Remplace par ton script pipeline.py lors de l'exécution
+    depends_on:
+      minio:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+    networks:
+      - tp-network
+
+volumes:
+  minio_data:
+  postgres_data:
+
+networks:
+  tp-network:
+    driver: bridge

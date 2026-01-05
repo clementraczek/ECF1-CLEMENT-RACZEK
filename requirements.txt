@@ -1,0 +1,28 @@
+# Scraping
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.1.0
+fake-useragent==1.4.0
+
+# Stockage
+minio==7.2.3
+pymongo==4.6.1
+
+# Traitement de données
+pandas==2.2.0
+numpy==1.26.4
+pillow==10.2.0
+
+# Utilitaires
+python-dotenv==1.0.1
+tenacity==8.2.3
+structlog==24.1.0
+tqdm==4.66.1
+
+# Tests
+pytest==8.0.0
+
+# Notebooks
+jupyter==1.0.0
+matplotlib==3.8.3
+seaborn==0.13.2
