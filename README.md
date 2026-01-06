@@ -11,8 +11,6 @@ Ce projet implémente un pipeline de données ETL (Extract, Transform, Load) com
 
 ## Architecture
 
-
-
 ```text
 ┌──────────────────────────────────────────┐
 │              SOURCES DU WEB              │
@@ -32,10 +30,10 @@ Ce projet implémente un pipeline de données ETL (Extract, Transform, Load) com
     │ Fichiers Bruts         │ Tables de Faits
     │ Données Cleaned        │ Rapports SQL
 
+```
+## Justification de l'architecture hybride
 
-### Justification de l'architecture hybride
-
-L'architecture repose sur le pattern **Medallion**, garantissant une séparation stricte des responsabilités et une traçabilité totale des données.
+L'architecture repose sur le schéma **Medallion**, garantissant une séparation stricte des responsabilités et une traçabilité totale des données.
 
 
 
@@ -49,28 +47,37 @@ L'architecture repose sur le pattern **Medallion**, garantissant une séparation
 
 ## Démarrage rapide
 
-### Prérequis
+## Prérequis
 
 - Python 3.10+
 - Docker et Docker Compose
 - Git
 
-### Installation
+## Installation
 
-### Installation
 
 ```bash
-# Cloner le projet et entrer dans le dossier
+# 1. Cloner le projet
+git clone <url-du-repo>
 cd ECF_1_Clement_Raczek
 
-# Installer les dépendances
+# 2. Créer l'environnement virtuel
+python -m venv venv
+
+# 3. Activer l'environnement virtuel
+# Sur Windows :
+.\venv\Scripts\activate
+# Sur Linux/Mac :
+source venv/bin/activate
+
+# 4. Installer les dépendances
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Lancer les bases de données (MinIO & Postgres)
-docker-compose up -d minio postgres
-```
+# 5. Lancer l'infrastructure (MinIO & Postgres)
+docker-compose up -d
 
-### Vérification de l'infrastructure
+## Vérification de l'infrastructure
 
 - **MinIO Console** : http://localhost:9001
   - Login : `minioadmin`
@@ -83,23 +90,23 @@ docker-compose up -d minio postgres
 
 ## Utilisation
 
-### Exécuter le pipeline
+# Exécuter le pipeline
 
-# Lancement complet (Reset + Ingest + Clean + Gold)
+**Lancement complet (Reset + Ingest + Clean + Gold)**
 python -m src.pipeline --all
 
-# Lancement complet avec résumé statistique final
+**Lancement complet avec résumé statistique final**
 python -m src.pipeline --all --analytics
 
-# Uniquement la phase d'extraction (Bronze)
+**Uniquement la phase d'extraction (Bronze)**
 python -m src.pipeline --ingest
 
-# Uniquement la phase de transformation (Silver)
+**Uniquement la phase de transformation (Silver)**
 python -m src.pipeline --clean
 
-# Uniquement l'injection en base de données et reporting (Gold)
+**Uniquement l'injection en base de données et reporting (Gold)**
 python -m src.pipeline --gold
-```
+
 
 ### Options disponibles
 
@@ -107,7 +114,7 @@ python -m src.pipeline --gold
 --ingest	Lance uniquement les scrapers (Books, Quotes, Commerce)
 --clean	Lance les scripts de nettoyage Pandas
 --gold	Lance l'injection PostgreSQL et génère le rapport Excel
---analytics	Affiche un résumé des tables Gold dans le terminal
+
 
 
 ## Structure du projet
@@ -177,8 +184,8 @@ LOG_LEVEL=INFO
 ## Analytics disponibles
 
 Le pipeline génère automatiquement :
-- un rapport excel reprenant une vue globale des tables mais limités à 100 lignes
-- un raport excel répondant aux questions de l'ECF
+- Un rapport excel reprenant une vue globale des tables mais limités à 100 lignes par requête
+- Un raport excel répondant aux questions de l'ECF
 
 
 
@@ -186,16 +193,16 @@ Le pipeline génère automatiquement :
 
 ## Ressources
 
-### Scraping & Extraction
+## Scraping & Extraction
 * [Scrapy Documentation](https://docs.scrapy.org/en/latest/) : Framework principal utilisé pour l'orchestration des spiders Books et Quotes.
 * [webscraper.io Test Sites](https://webscraper.io/test-sites) : Plateforme cible pour l'apprentissage du scraping e-commerce.
 * [BeautifulSoup Documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) : Bibliothèque utilisée pour le parsing chirurgical des données e-commerce.
 
-### Stockage & Infrastructure
+## Stockage & Infrastructure
 * [MinIO Python SDK](https://min.io/docs/minio/linux/developers/python/minio-py.html) : Gestion du stockage objet S3 pour les couches Bronze et Silver.
 * [PostgreSQL Documentation](https://www.postgresql.org/docs/) : Moteur de base de données relationnelle pour la couche Gold.
 * [SQLAlchemy & Pandas](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html) : Outils de Mapping Objet-Relationnel (ORM) et d'injection massive de données.
 
-### Architecture & Qualité
+## Architecture & Qualité
 * [Medallion Architecture](https://www.databricks.com/glossary/medallion-architecture) : Concept de structuration des données par niveaux de qualité (Bronze, Silver, Gold).
 * [Data Quality in ETL](https://www.metabase.com/learn/data-stack/data-quality) : Principes de validation SQL implémentés dans `sql_test.py`.

@@ -26,9 +26,3 @@ Conformément au cahier des charges, la procédure de droit à l'effacement est 
     * Les fichiers CSV dans le bucket `bronze` de **MinIO** contenant ce `contact_id` sont purgés.
     * La commande `DELETE FROM gold_librairies WHERE contact_id = '...'` est exécutée sur **PostgreSQL**.
 
----
-
-## 3. Base légale du traitement
-
-Le traitement des données des librairies partenaires repose sur :
-* **L'Intérêt Légitime (Article 6.1.f du RGPD) :** Nécessaire à la gestion opérationnelle et à l'analyse de l'activité commerciale de DataPulse Analytics.
