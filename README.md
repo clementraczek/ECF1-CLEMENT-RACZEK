@@ -1,4 +1,4 @@
-# ECF Data Engineering : Pipeline Multi-Sources & Analytics (Medallion)
+# ECF Data Engineering : Pipeline Multi-Sources & Analytics
 
 ## 📝 Description
 Ce projet implémente un pipeline de données ETL (Extract, Transform, Load) complet pour collecter, transformer et analyser des données provenant de quatre sources distinctes. L'objectif est de démontrer la capacité à orchestrer des flux de données complexes, à gérer une infrastructure hybride (S3/SQL) et à assurer la conformité et la qualité des données.
