@@ -45,8 +45,7 @@ class MinioClient:
         """Crée les buckets bronze, silver et gold s'ils n'existent pas."""
         buckets = [
             minio_config.bucket_bronze,
-            minio_config.bucket_silver,
-            minio_config.bucket_gold
+            minio_config.bucket_silver
         ]
         for bucket in buckets:
             try:
@@ -138,8 +137,7 @@ class MinioClient:
         """Retourne des statistiques sur les buckets bronze, silver et gold."""
         stats = {}
         for bucket_name in [minio_config.bucket_bronze,
-                            minio_config.bucket_silver,
-                            minio_config.bucket_gold]:
+                            minio_config.bucket_silver]:
             try:
                 objects = list(self.client.list_objects(bucket_name, recursive=True))
                 stats[bucket_name] = {

@@ -1,7 +1,10 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
+venv/
+.env
 
 # Scrapy
 .scrapy/
@@ -9,8 +12,17 @@ __pycache__/
 # Fichiers de logs
 *.log
 
-# Données exportées
-scraping/books/*.csv
+# Données exportées et rapports (Bronze, Silver, Gold en local)
+data/
+*.csv
+*.json
+*.xlsx
+*.parquet
 
-# Fichiers secrets
+# Configuration et secrets
 config/settings.py
+.idea/
+.vscode/
+
+# Docker
+.docker/

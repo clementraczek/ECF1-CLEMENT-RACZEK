@@ -49,22 +49,22 @@ services:
   # =========================
   # Service ETL / Scrapers
   # =========================
-  etl:
-    build: .
-    container_name: tp-etl
-    command: tail -f /dev/null  # Remplace par ton script pipeline.py lors de l'exécution
-    depends_on:
-      minio:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    env_file:
-      - .env
-    volumes:
-      - ./src:/app/src
-      - ./data:/app/data
-    networks:
-      - tp-network
+  # etl:
+  #   build: .
+  #   container_name: tp-etl
+  #   command: tail -f /dev/null  # Remplace par ton script pipeline.py lors de l'exécution
+  #   depends_on:
+  #     minio:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./src:/app/src
+  #     - ./data:/app/data
+  #   networks:
+  #     - tp-network
 
 volumes:
   minio_data:

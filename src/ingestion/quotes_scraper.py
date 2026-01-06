@@ -1,63 +1,73 @@
-import re
-from datetime import datetime
-import pandas as pd
-import scrapy
-from items import QuoteItem  # On peut renommer en QuoteItem si tu veux
-from src.storage.minio_client import MinioClient
 import uuid
+import scrapy
+import pandas as pd
+from datetime import datetime
+from config.settings import scraper_config
+from src.storage.minio_client import MinioClient
 
+try:
+    from items import QuoteItem
+except ImportError:
+    QuoteItem = dict
 
 class QuotesSpider(scrapy.Spider):
     name = "quotes"
     allowed_domains = ["quotes.toscrape.com"]
     start_urls = ["https://quotes.toscrape.com/page/1/"]
 
+    custom_settings = {
+        'DOWNLOAD_DELAY': max(1.0, scraper_config.delay),
+        'RANDOMIZE_DOWNLOAD_DELAY': True,
+        'USER_AGENT': scraper_config.user_agent,
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
+        'HTTPERROR_ALLOWED_CODES': [404, 500, 503],
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.page_count = 0
+        self.max_pages = scraper_config.max_pages
         self.all_quotes = []
-        self.client = MinioClient()  # ton client MinIO existant
+        self.client = MinioClient()
 
     def parse(self, response):
-        # Scraper toutes les citations de la page
+        if response.status != 200:
+            self.logger.error(f"HTTP_ERROR: {response.status} | URL: {response.url}")
+            return
+
+        self.logger.info(f"Parsing: {response.url}")
+
         for quote in response.css('div.quote'):
-            item = QuoteItem()  # ou QuoteItem si tu crées un item dédié
+            item = QuoteItem()
             item['id'] = str(uuid.uuid4())
             item['text'] = quote.css('span.text::text').get()
             item['author'] = quote.css('small.author::text').get()
             item['tags'] = ",".join(quote.css('div.tags a.tag::text').getall())
             self.all_quotes.append(dict(item))
-            yield item
 
-        # Pagination : suivre la page suivante si elle existe
+        self.page_count += 1
         next_page = response.css('li.next a::attr(href)').get()
-        if next_page:
+
+        if next_page and self.page_count < self.max_pages:
             yield response.follow(next_page, callback=self.parse)
         else:
-            # Fin du crawl → upload unique sur MinIO
             self.upload_to_minio()
 
     def upload_to_minio(self):
-        """
-        Génère le CSV en mémoire et l'envoie sur le bucket bronze de Minio.
-        """
         if not self.all_quotes:
-            self.logger.warning("Aucune citation à uploader.")
+            self.logger.warning("Status: No data extracted")
             return
 
-        # Crée le DataFrame
         df = pd.DataFrame(self.all_quotes)
-        csv_content = df.to_csv(index=False)  # CSV en mémoire
+        csv_content = df.to_csv(index=False)
 
-        # Nom du fichier CSV avec seulement date et heure
-        filename = f"quotes_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"quotes_{timestamp}.csv"
         object_path = f"scraping/quotes/{filename}"
 
-        # Upload vers le bucket bronze
         uri = self.client.upload_csv(csv_content, object_path)
 
         if uri:
-            self.logger.info(f"Fichier uploadé avec succès : {uri}")
-            print(f"Fichier uploadé avec succès : {uri}")
+            self.logger.info(f"Export_status: Success | URI: {uri}")
         else:
-            self.logger.error(f"Échec de l'upload du fichier : {filename}")
-            print(f"Échec de l'upload du fichier : {filename}")
+            self.logger.error("Export_status: Failure")
